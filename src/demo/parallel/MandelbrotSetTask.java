@@ -254,15 +254,61 @@ class MandelbrotSetTask extends Task<Long> {
      * This number is used to choose a color for this pixel for precalculated 
      * color tables.
      *
-     * @param comp a complex number used for calculation
      * @return number of iterations a value stayed within a given disk.
      */
+    public class Complex {
+        private final double re; // Real part
+        private final double im; // Imaginary part
+
+        public Complex(double re, double im) {
+            this.re = re;
+            this.im = im;
+        }
+
+        // Method to calculate the squared length (magnitude) of the complex number
+        public double lengthSQ() {
+            return re * re + im * im; // |z|^2 = a^2 + b^2
+        }
+
+        // Addition
+        public Complex plus(Complex other) {
+            return new Complex(this.re + other.re, this.im + other.im);
+        }
+
+        // Multiplication
+        public Complex times(Complex other) {
+            return new Complex(this.re * other.re - this.im * other.im,
+                    this.re * other.im + this.im * other.re);
+        }
+
+        // Subtraction
+        public Complex minus(Complex other) {
+            return new Complex(this.re - other.re, this.im - other.im);
+        }
+
+        // Division
+        public Complex divide(Complex other) {
+            double denominator = other.re * other.re + other.im * other.im;
+            return new Complex((this.re * other.re + this.im * other.im) / denominator,
+                    (this.im * other.re - this.re * other.im) / denominator);
+        }
+
+        // Power
+        public Complex power(int exponent) {
+            Complex result = new Complex(1, 0); // Initial value for 0th power
+            for (int i = 0; i < exponent; i++) {
+                result = result.times(this);
+            }
+            return result;
+        }
+
+        // Other methods (e.g., conjugate, etc.) can be added as needed
+    }
     private int calc(Complex comp) {
         int count = 0;
         Complex z = new Complex(0, 0);
         do {
-            Complex temp = z.times(z);
-            z = temp.times(z).plus(comp);
+            z = z.times(z).plus(comp).divide(new Complex(1, 1)); // (z^2 + c) / (1 + i)
             count++;
         } while (count < CAL_MAX_COUNT && z.lengthSQ() < LENGTH_BOUNDARY);
         return count;
@@ -270,7 +316,7 @@ class MandelbrotSetTask extends Task<Long> {
 
     /**
      * Calculates a color of a given pixel on the image using 
-     * {@link #calc(demo.parallel.Complex) } method.
+
      * @param x x coordinate of the pixel in the image
      * @param y y coordinate of the pixel in the image
      * @return calculated color of the pixel
@@ -316,8 +362,7 @@ class MandelbrotSetTask extends Task<Long> {
 
     /**
      * Returns a color for a given iteration count.
-     * @param count number of iterations return by 
-     * {@link #calc(demo.parallel.Complex)} method
+     * @param count number of iterations return by
      * @return color from pre-calculated table
      */
     private Color getColor(int count) {
