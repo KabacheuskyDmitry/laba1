@@ -45,52 +45,50 @@ package demo.parallel;
  * @author Alexander Kouznetsov, Tristan Yan
  */
 public class Complex {
-    
-    private double re;   // the real part
-    private double im;   // the imaginary part
+    private final double re; // Real part
+    private final double im; // Imaginary part
 
-    /** 
-     * create a new object with the given real and imaginary parts
-     * 
-     * @param real a complex number real part
-     * @param imag a complex number imaginary part 
-     */
-    public Complex(double real, double imag) {
-        re = real;
-        im = imag;
+    public Complex(double re, double im) {
+        this.re = re;
+        this.im = im;
     }
 
-    /**
-     * Add operation.
-     * @param b summand
-     * @return this Complex object whose value is (this + b)
-     */
-    public Complex plus(Complex b) {
-        re += b.re;
-        im += b.im;
-        return this;
-    }
-
-    /**
-     * Multiply operation.
-     * @param  b multiplier
-     * @return this Complex object whose value is this * b
-     */
-    public Complex times(Complex b) {
-        Complex a = this;
-        double real = a.re * b.re - a.im * b.im;
-        double imag = a.re * b.im + a.im * b.re;
-        re = real;
-        im = imag;
-        return this;
-    }
-
-    /**
-     * Square of Complex object's length, we're using square of length to 
-     * eliminate the computation of square root
-     * @return square of length
-    */
+    // Method to calculate the squared length (magnitude) of the complex number
     public double lengthSQ() {
-        return re * re + im * im;
+        return re * re + im * im; // |z|^2 = a^2 + b^2
     }
+
+    // Addition
+    public Complex plus(Complex other) {
+        return new Complex(this.re + other.re, this.im + other.im);
+    }
+
+    // Multiplication
+    public Complex times(Complex other) {
+        return new Complex(this.re * other.re - this.im * other.im,
+                this.re * other.im + this.im * other.re);
+    }
+
+    // Subtraction
+    public Complex minus(Complex other) {
+        return new Complex(this.re - other.re, this.im - other.im);
+    }
+
+    // Division
+    public Complex divide(Complex other) {
+        double denominator = other.re * other.re + other.im * other.im;
+        return new Complex((this.re * other.re + this.im * other.im) / denominator,
+                (this.im * other.re - this.re * other.im) / denominator);
+    }
+
+    // Power
+    public Complex power(int exponent) {
+        Complex result = new Complex(1, 0); // Initial value for 0th power
+        for (int i = 0; i < exponent; i++) {
+            result = result.times(this);
+        }
+        return result;
+    }
+
+    // Other methods (e.g., conjugate, etc.) can be added as needed
 }
